@@ -1,8 +1,6 @@
-// app.js
 const http = require('http');
 const { URL } = require('url');
 
-// "Banco de dados" em memória
 let alunos = [
     { id: 1, nome: 'Jéferson', notas: [8, 7, 9], situacao: '' },
     { id: 2, nome: 'Maria', notas: [6, 5, 7], situacao: '' },
@@ -11,7 +9,6 @@ let alunos = [
     { id: 5, nome: 'Ana', notas: [7, 7, 8], situacao: '' },
 ];
 
-// Função para calcular média e situação
 function atualizarMediaESituacao(aluno) {
     const media =
         aluno.notas.reduce((acc, n) => acc + n, 0) / aluno.notas.length;
@@ -20,7 +17,6 @@ function atualizarMediaESituacao(aluno) {
     return aluno;
 }
 
-// Inicializa médias automaticamente
 alunos = alunos.map(atualizarMediaESituacao);
 
 const server = http.createServer((req, res) => {
@@ -33,15 +29,12 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify(data, null, 2));
     };
 
-    // Rota inicial
     if (method === 'GET' && path === '/') {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         return res.end('API de Alunos - Servidor Node.js');
     }
 
-    // ------------------------------------
-    // GET /alunos → lista todos ou filtra por nome
-    // ------------------------------------
+
     if (method === 'GET' && path === '/alunos') {
         const nomeBusca = parsedUrl.searchParams.get('nome');
         const lista = nomeBusca
@@ -52,41 +45,26 @@ const server = http.createServer((req, res) => {
         return sendJSON(200, lista);
     }
 
-    // ------------------------------------
-    // GET /alunos/ordenados → por média desc
-    // ------------------------------------
     if (method === 'GET' && path === '/alunos/ordenados') {
         const ordenados = [...alunos].sort((a, b) => b.media - a.media);
         return sendJSON(200, ordenados);
     }
 
-    // ------------------------------------
-    // GET /alunos/ranking → top 3 alunos
-    // ------------------------------------
     if (method === 'GET' && path === '/alunos/ranking') {
         const ranking = [...alunos].sort((a, b) => b.media - a.media).slice(0, 3);
         return sendJSON(200, ranking);
     }
 
-    // ------------------------------------
-    // GET /alunos/aprovados → média >= 7
-    // ------------------------------------
     if (method === 'GET' && path === '/alunos/aprovados') {
         const aprovados = alunos.filter(a => a.media >= 7);
         return sendJSON(200, aprovados);
     }
 
-    // ------------------------------------
-    // GET /alunos/reprovados → média < 7
-    // ------------------------------------
     if (method === 'GET' && path === '/alunos/reprovados') {
         const reprovados = alunos.filter(a => a.media < 7);
         return sendJSON(200, reprovados);
     }
 
-    // ------------------------------------
-    // POST /alunos → adiciona novo aluno
-    // ------------------------------------
     if (method === 'POST' && path === '/alunos') {
         let body = '';
         req.on('data', chunk => (body += chunk));
@@ -112,9 +90,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // ------------------------------------
-    // PUT /alunos/recuperacao/:id → atualiza notas
-    // ------------------------------------
     if (method === 'PUT' && path.startsWith('/alunos/recuperacao/')) {
         const id = parseInt(path.split('/')[3]);
         const alunoIndex = alunos.findIndex(a => a.id === id);
@@ -146,7 +121,6 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Rota não encontrada
     sendJSON(404, { erro: 'Rota não encontrada' });
 });
 
